@@ -33,7 +33,7 @@ class Game:
         self.small_font = pygame.font.Font(None, int(30 * self.scale))
         
         # Animation du menu - Vidéo en arrière-plan
-        video_path = os.path.join(os.path.dirname(__file__), "Dragon_incrusté_dans_les_montagnes.mp4")
+        video_path = os.path.join(os.path.dirname(__file__), "_incrusté_dans_les_montagnes.mp4")
         self.menu_video = cv2.VideoCapture(video_path)
         self.menu_video_frame = None
         
