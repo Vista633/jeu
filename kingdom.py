@@ -4,7 +4,7 @@ from enums import Element
 from enemy import Enemy
 
 class Kingdom:
-    def __init__(self, name, element, bg_color, bg_image_path=None, screen_width=1366, screen_height=768):
+    def __init__(self, name, element, bg_color, bg_image_path=None, screen_width=1366, screen_height=768, kingdom_index=0):
         self.name = name
         self.element = element
         self.bg_color = bg_color
@@ -13,6 +13,10 @@ class Kingdom:
         self.enemies = []
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.kingdom_index = kingdom_index
+        
+        # Largeur du monde = 2 écrans
+        self.world_width = screen_width * 2
         
         # Load background image
         self.bg_image = None
@@ -28,22 +32,25 @@ class Kingdom:
         self.generate_world()
     
     def generate_world(self):
-        # No obstacles in platform mode
         self.obstacles = []
         
-        # Générer des ennemis - ils spawnnent sur la droite de l'écran
-        enemy_count = 5 if self.element != Element.NONE else 3
-        for i in range(enemy_count):
-            # Spawn progressivement de la droite vers le centre
-            # Entre 50% et 120% de la largeur de l'écran (certains hors écran à droite)
-            x = int(self.screen_width * (0.5 + (i * 0.15)))
-            # Position Y aléatoire entre 30% et 80% de la hauteur
-            y = random.randint(int(self.screen_height * 0.3), int(self.screen_height * 0.8))
-            enemy_type = random.choice(["mini", "normal"])
-            self.enemies.append(Enemy(x, y, enemy_type, self.element))
+        # Nombre d'ennemis par royaume
+        enemy_counts = [3, 5, 6, 8]
+        enemy_count = enemy_counts[min(self.kingdom_index, 3)]
+        ground_level = 640
         
-        # Boss à la fin - complètement à droite
+        # Répartir les ennemis sur les 2 écrans
+        for i in range(enemy_count):
+            # Distribution régulière sur la largeur totale (2 écrans)
+            x = int(self.screen_width * 0.5 + (i * (self.world_width - self.screen_width) / max(enemy_count, 1)))
+            y = ground_level
+            enemy_type = random.choice(["mini", "normal", "normal"])
+            enemy = Enemy(x, y, enemy_type, self.element, self.kingdom_index)
+            self.enemies.append(enemy)
+        
+        # Boss à la fin du monde (près de la fin du 2ème écran)
         if self.element != Element.NONE:
-            boss_x = int(self.screen_width * 1.3)  # Hors écran à droite
-            boss_y = int(self.screen_height * 0.7)
-            self.enemies.append(Enemy(boss_x, boss_y, "boss", self.element))
+            boss_x = int(self.world_width - 200)
+            boss_y = ground_level
+            boss = Enemy(boss_x, boss_y, "boss", self.element, self.kingdom_index)
+            self.enemies.append(boss)
