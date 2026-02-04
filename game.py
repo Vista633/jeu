@@ -46,10 +46,10 @@ class Game:
         
         # Royaumes
         self.kingdoms = [
-            Kingdom("Royaume de l'Eau", Element.EAU, (50, 100, 150), "eau.jpg", self.screen_width, self.screen_height),
-            Kingdom("Royaume de la Terre", Element.TERRE, (100, 70, 40), "jungle.jpg", self.screen_width, self.screen_height),
-            Kingdom("Royaume de l'Air", Element.AIR, (135, 206, 235), "air.jpg", self.screen_width, self.screen_height),
-            Kingdom("Royaume du Feu", Element.FEU, (139, 50, 30), "feu.jpg", self.screen_width, self.screen_height)
+            Kingdom("Royaume de l'Eau", Element.EAU, (50, 100, 150), "eau.jpg", self.screen_width, self.screen_height, kingdom_index=0),
+            Kingdom("Royaume de la Terre", Element.TERRE, (100, 70, 40), "jungle.jpg", self.screen_width, self.screen_height, kingdom_index=1),
+            Kingdom("Royaume de l'Air", Element.AIR, (135, 206, 235), "air.jpg", self.screen_width, self.screen_height, kingdom_index=2),
+            Kingdom("Royaume du Feu", Element.FEU, (139, 50, 30), "feu.jpg", self.screen_width, self.screen_height, kingdom_index=3)
         ]
         self.current_kingdom_index = 0
         self.current_kingdom = None

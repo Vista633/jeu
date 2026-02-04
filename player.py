@@ -18,7 +18,7 @@ class Player:
         self.gravity = 0.8
         self.jump_power = -15
         self.on_ground = False
-        self.ground_level = 630  # On the stone bridge/platform
+        self.ground_level = 550  # Ajusté pour que le personnage soit SUR le sol
         
         # Stats
         self.max_hp = 100

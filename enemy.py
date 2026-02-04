@@ -5,37 +5,44 @@ from enums import Element
 from constants import RED, GREEN, BLACK, BLUE, WHITE
 
 class Enemy:
-    def __init__(self, x, y, enemy_type, element):
+    def __init__(self, x, y, enemy_type, element, kingdom_index=0):
         self.x = x
-        self.y = -100  # Spawn above screen to fall down
+        self.ground_level = 580  # Ajusté pour être sur le sol
+        self.y = self.ground_level
         self.width = 35
         self.height = 40
         self.enemy_type = enemy_type
         self.element = element
+        self.kingdom_index = kingdom_index
         
         # Physics
         self.velocity_y = 0
         self.gravity = 0.8
-        self.on_ground = False
-        self.ground_level = 630  # On the stone bridge
+        self.on_ground = True
         
-        # Stats selon le type
+        # Difficulté progressive
+        hp_multiplier = 1.0 + (kingdom_index * 0.15)
+        
+        # Stats selon le type - dégâts réduits à 5-7
         if enemy_type == "mini":
-            self.max_hp = 30
-            self.hp = 30
-            self.attack = 30  # Augmenté de 8 à 30
+            base_hp = 75
+            self.max_hp = int(base_hp * hp_multiplier)
+            self.hp = self.max_hp
+            self.attack = 5  # Réduit à 5 dégâts
             self.speed = 2
             self.size = 30
         elif enemy_type == "normal":
-            self.max_hp = 50
-            self.hp = 50
-            self.attack = 30  # Augmenté de 12 à 30
+            base_hp = 100
+            self.max_hp = int(base_hp * hp_multiplier)
+            self.hp = self.max_hp
+            self.attack = 7  # 7 dégâts
             self.speed = 1.5
             self.size = 35
         else:  # boss
-            self.max_hp = 100
-            self.hp = 100
-            self.attack = 100  # Augmenté de 20 à 100
+            base_hp = 200
+            self.max_hp = int(base_hp * hp_multiplier)
+            self.hp = self.max_hp
+            self.attack = 7  # 7 dégâts
             self.speed = 1
             self.size = 50
         
@@ -50,6 +57,14 @@ class Enemy:
             self.color = (200, 230, 255)
         else:
             self.color = (80, 50, 100)
+        
+        # Charger le sprite du monstre
+        try:
+            self.sprite = pygame.image.load('Monstre.png').convert_alpha()
+            self.sprite = pygame.transform.scale(self.sprite, (self.size * 2, self.size * 2))
+            self.has_sprite = True
+        except:
+            self.has_sprite = False
         
         # IA
         self.direction = random.choice([0, 1])  # 0=left, 1=right
@@ -79,8 +94,10 @@ class Enemy:
             if distance < self.aggro_range:
                 if dx > 0:
                     self.x += self.speed
+                    self.last_dx = self.speed
                 elif dx < 0:
                     self.x -= self.speed
+                    self.last_dx = -self.speed
             else:
                 # Mouvement aléatoire horizontal
                 self.move_timer += 1
@@ -106,18 +123,33 @@ class Enemy:
         screen_x = int(self.x - camera_x)
         screen_y = int(self.y - camera_y)
         
-        # Corps de l'ennemi
-        pygame.draw.circle(screen, self.color, 
-                         (screen_x + self.width // 2, screen_y + self.height // 2), 
-                         self.size // 2)
-        pygame.draw.circle(screen, BLACK,
-                         (screen_x + self.width // 2, screen_y + self.height // 2),
-                         self.size // 2, 2)
-        
-        # Yeux méchants
-        eye_y = screen_y + self.height // 2 - 5
-        pygame.draw.circle(screen, RED, (screen_x + self.width // 2 - 8, eye_y), 4)
-        pygame.draw.circle(screen, RED, (screen_x + self.width // 2 + 8, eye_y), 4)
+        # Dessiner le sprite du monstre si disponible
+        if self.has_sprite:
+            # Calculer la position centrée
+            sprite_x = screen_x + self.width // 2 - self.sprite.get_width() // 2
+            sprite_y = screen_y + self.height // 2 - self.sprite.get_height() // 2
+            
+            # Retourner le sprite si l'ennemi va à gauche
+            if hasattr(self, 'last_dx') and self.last_dx < 0:
+                sprite_to_draw = pygame.transform.flip(self.sprite, True, False)
+            else:
+                sprite_to_draw = self.sprite
+            
+            screen.blit(sprite_to_draw, (sprite_x, sprite_y))
+        else:
+            # Fallback: dessin géométrique
+            # Corps de l'ennemi
+            pygame.draw.circle(screen, self.color, 
+                             (screen_x + self.width // 2, screen_y + self.height // 2), 
+                             self.size // 2)
+            pygame.draw.circle(screen, BLACK,
+                             (screen_x + self.width // 2, screen_y + self.height // 2),
+                             self.size // 2, 2)
+            
+            # Yeux méchants
+            eye_y = screen_y + self.height // 2 - 5
+            pygame.draw.circle(screen, RED, (screen_x + self.width // 2 - 8, eye_y), 4)
+            pygame.draw.circle(screen, RED, (screen_x + self.width // 2 + 8, eye_y), 4)
         
         # Barre de vie
         hp_bar_width = self.size
