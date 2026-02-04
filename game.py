@@ -187,7 +187,7 @@ class Game:
         quit_button.draw(self.screen)
         
         # Texte d'ambiance
-        ambient_text = self.small_font.render("Le destin d'Aelyra repose entre tes mains...", True, (200, 200, 150))
+        ambient_text = self.small_font.render("Le destin d'Aelyra repose entre tes mains...", True, (255, 250, 205))
         ambient_rect = ambient_text.get_rect(center=(self.screen_width // 2, self.screen_height - int(60 * self.scale)))
         self.screen.blit(ambient_text, ambient_rect)
         
