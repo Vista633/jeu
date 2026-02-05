@@ -41,7 +41,7 @@ class Game:
         # Initialisation audio
         pygame.mixer.init()
         try:    
-            path_musique = os.path.join(os.path.dirname(__file__), "musique.mp3")
+            path_musique = os.path.join(os.path.dirname(__file__), "musique_Avatar.mp3")
             pygame.mixer.music.load(path_musique)
             self.volume = 0.5  # Volume par défaut à 50%
             pygame.mixer.music.set_volume(self.volume)
