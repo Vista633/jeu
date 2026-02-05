@@ -38,6 +38,18 @@ class Game:
         self.menu_video = cv2.VideoCapture(video_path)
         self.menu_video_frame = None
         
+        # Initialisation audio
+        pygame.mixer.init()
+        try:    
+            path_musique = os.path.join(os.path.dirname(__file__), "musique.mp3")
+            pygame.mixer.music.load(path_musique)
+            self.volume = 0.5  # Volume par défaut à 50%
+            pygame.mixer.music.set_volume(self.volume)
+            pygame.mixer.music.play(-1) # -1 pour boucler à l'infini
+        except:
+            print("Erreur : Fichier musique introuvable.")
+            self.volume = 0.5
+        
         # Jeu
         self.player = None
         self.camera_x = 0
@@ -309,6 +321,36 @@ class Game:
         subtitle_rect = subtitle_text.get_rect(center=(self.screen_width // 2, int(180 * self.scale)))
         self.screen.blit(subtitle_text, subtitle_rect)
         
+        # Barre de volume pour la musique
+        y_vol = int(580 * self.scale) # Position verticale
+        x_vol = self.screen_width // 2 - int(150 * self.scale)
+        largeur_barre = int(300 * self.scale)
+        hauteur_barre = int(20 * self.scale)
+
+        # Texte du volume
+        vol_label = self.text_font.render(f"Volume : {int(self.volume * 100)}%", True, WHITE)
+        self.screen.blit(vol_label, (x_vol - int(180 * self.scale), y_vol - int(10 * self.scale)))
+
+        # Dessin de la barre (fond vide)
+        pygame.draw.rect(self.screen, (50, 50, 50), (x_vol, y_vol, largeur_barre, hauteur_barre))
+        # Dessin du remplissage (volume actuel)
+        pygame.draw.rect(self.screen, (255, 215, 0), (x_vol, y_vol, int(largeur_barre * self.volume), hauteur_barre))
+        # Bordure
+        pygame.draw.rect(self.screen, WHITE, (x_vol, y_vol, largeur_barre, hauteur_barre), 2)
+
+        # Interaction à la souris
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_click = pygame.mouse.get_pressed()
+
+        if mouse_click[0]: # Si clic gauche enfoncé
+            # On vérifie si la souris est au-dessus de la barre
+            if x_vol <= mouse_pos[0] <= x_vol + largeur_barre and y_vol - 10 <= mouse_pos[1] <= y_vol + hauteur_barre + 10:
+                # Calcul du nouveau volume (entre 0.0 et 1.0) basé sur la position X de la souris
+                relative_x = mouse_pos[0] - x_vol
+                self.volume = relative_x / largeur_barre
+                self.volume = max(0.0, min(1.0, self.volume)) # On reste entre 0 et 1
+                pygame.mixer.music.set_volume(self.volume)
+                
         # Actions et leurs touches
         actions = {
             'move_left': 'Déplacer à gauche',
